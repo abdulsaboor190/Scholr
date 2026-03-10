@@ -14,4 +14,10 @@ export class AppController {
         'Welcome to the Scholr University API! Please use Postman to interact with the specific endpoints (e.g., /api/auth/login).',
     };
   }
+
+  @Public()
+  @Get('health')
+  healthCheck() {
+    return { status: 'ok', timestamp: new Date().toISOString() };
+  }
 }
