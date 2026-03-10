@@ -1,0 +1,460 @@
+{
+    "info": {
+        "name": "BookShare API",
+        "description": "Phase 1 — University Book Borrowing API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "baseUrl",
+            "value": "http://localhost:3000/api"
+        },
+        {
+            "key": "accessToken",
+            "value": ""
+        },
+        {
+            "key": "refreshToken",
+            "value": ""
+        },
+        {
+            "key": "userId",
+            "value": ""
+        },
+        {
+            "key": "bookId",
+            "value": ""
+        },
+        {
+            "key": "requestId",
+            "value": ""
+        }
+    ],
+    "auth": {
+        "type": "bearer",
+        "bearer": [
+            {
+                "key": "token",
+                "value": "{{accessToken}}",
+                "type": "string"
+            }
+        ]
+    },
+    "item": [
+        {
+            "name": "Auth",
+            "item": [
+                {
+                    "name": "Register",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var data = pm.response.json();",
+                                    "    pm.collectionVariables.set('accessToken', data.accessToken);",
+                                    "    pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                                    "    pm.collectionVariables.set('userId', data.user.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@university.edu\",\n  \"password\": \"password123\"\n}"
+                        },
+                        "url": "{{baseUrl}}/auth/register"
+                    }
+                },
+                {
+                    "name": "Login",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var data = pm.response.json();",
+                                    "    pm.collectionVariables.set('accessToken', data.accessToken);",
+                                    "    pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                                    "    pm.collectionVariables.set('userId', data.user.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"email\": \"john@university.edu\",\n  \"password\": \"password123\"\n}"
+                        },
+                        "url": "{{baseUrl}}/auth/login"
+                    }
+                },
+                {
+                    "name": "Refresh Token",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 200) {",
+                                    "    var data = pm.response.json();",
+                                    "    pm.collectionVariables.set('accessToken', data.accessToken);",
+                                    "    pm.collectionVariables.set('refreshToken', data.refreshToken);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+                        },
+                        "url": "{{baseUrl}}/auth/refresh"
+                    }
+                },
+                {
+                    "name": "Logout",
+                    "request": {
+                        "method": "POST",
+                        "url": "{{baseUrl}}/auth/logout"
+                    }
+                },
+                {
+                    "name": "Google OAuth (Browser)",
+                    "request": {
+                        "auth": {
+                            "type": "noauth"
+                        },
+                        "method": "GET",
+                        "url": "{{baseUrl}}/auth/google"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Users",
+            "item": [
+                {
+                    "name": "Get Profile",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/users/me"
+                    }
+                },
+                {
+                    "name": "Update Profile",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"name\": \"Updated Name\"\n}"
+                        },
+                        "url": "{{baseUrl}}/users/me"
+                    }
+                },
+                {
+                    "name": "Upload Avatar",
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "avatar",
+                                    "type": "file",
+                                    "src": ""
+                                }
+                            ]
+                        },
+                        "url": "{{baseUrl}}/users/me/avatar"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Books",
+            "item": [
+                {
+                    "name": "Create Book",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var data = pm.response.json();",
+                                    "    pm.collectionVariables.set('bookId', data.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Test Book\",\n  \"author\": \"Test Author\",\n  \"subject\": \"Computer Science\"\n}"
+                        },
+                        "url": "{{baseUrl}}/books"
+                    }
+                },
+                {
+                    "name": "Get All Books",
+                    "request": {
+                        "method": "GET",
+                        "url": {
+                            "raw": "{{baseUrl}}/books?subject=Computer Science&status=AVAILABLE&search=",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "books"
+                            ],
+                            "query": [
+                                {
+                                    "key": "subject",
+                                    "value": "Computer Science"
+                                },
+                                {
+                                    "key": "status",
+                                    "value": "AVAILABLE"
+                                },
+                                {
+                                    "key": "search",
+                                    "value": ""
+                                }
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Get Book by ID",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/books/{{bookId}}"
+                    }
+                },
+                {
+                    "name": "Update Book",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"title\": \"Updated Title\"\n}"
+                        },
+                        "url": "{{baseUrl}}/books/{{bookId}}"
+                    }
+                },
+                {
+                    "name": "Upload Book Image",
+                    "request": {
+                        "method": "POST",
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": [
+                                {
+                                    "key": "image",
+                                    "type": "file",
+                                    "src": ""
+                                }
+                            ]
+                        },
+                        "url": "{{baseUrl}}/books/{{bookId}}/image"
+                    }
+                },
+                {
+                    "name": "Delete Book",
+                    "request": {
+                        "method": "DELETE",
+                        "url": "{{baseUrl}}/books/{{bookId}}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Borrow Requests",
+            "item": [
+                {
+                    "name": "Create Borrow Request",
+                    "event": [
+                        {
+                            "listen": "test",
+                            "script": {
+                                "exec": [
+                                    "if (pm.response.code === 201) {",
+                                    "    var data = pm.response.json();",
+                                    "    pm.collectionVariables.set('requestId', data.id);",
+                                    "}"
+                                ]
+                            }
+                        }
+                    ],
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bookId\": \"{{bookId}}\"\n}"
+                        },
+                        "url": "{{baseUrl}}/borrow-requests"
+                    }
+                },
+                {
+                    "name": "Accept Request",
+                    "request": {
+                        "method": "PATCH",
+                        "url": "{{baseUrl}}/borrow-requests/{{requestId}}/accept"
+                    }
+                },
+                {
+                    "name": "Reject Request",
+                    "request": {
+                        "method": "PATCH",
+                        "url": "{{baseUrl}}/borrow-requests/{{requestId}}/reject"
+                    }
+                },
+                {
+                    "name": "Return Book",
+                    "request": {
+                        "method": "PATCH",
+                        "url": "{{baseUrl}}/borrow-requests/{{requestId}}/return"
+                    }
+                },
+                {
+                    "name": "Get My Requests",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/borrow-requests"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Borrow History",
+            "item": [
+                {
+                    "name": "My Borrows (Borrower)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/borrow-history/borrower"
+                    }
+                },
+                {
+                    "name": "My Lent Books (Lender)",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/borrow-history/lender"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Chats",
+            "item": [
+                {
+                    "name": "Send Message",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"requestId\": \"{{requestId}}\",\n  \"message\": \"Hi, is this book still available?\"\n}"
+                        },
+                        "url": "{{baseUrl}}/chats"
+                    }
+                },
+                {
+                    "name": "Get Messages by Request",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/chats/request/{{requestId}}"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Reviews",
+            "item": [
+                {
+                    "name": "Create Review",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"bookId\": \"{{bookId}}\",\n  \"rating\": 5,\n  \"comment\": \"Great book!\"\n}"
+                        },
+                        "url": "{{baseUrl}}/reviews"
+                    }
+                },
+                {
+                    "name": "Get Reviews by Book",
+                    "request": {
+                        "method": "GET",
+                        "url": "{{baseUrl}}/reviews/book/{{bookId}}"
+                    }
+                }
+            ]
+        }
+    ]
+}
