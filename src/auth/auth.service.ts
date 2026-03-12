@@ -238,11 +238,13 @@ export class AuthService {
     const res = await fetch(
       `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`,
     );
+    
+    const data: any = await res.json();
+    
     if (!res.ok) {
-      throw new UnauthorizedException('Invalid Google token');
+      throw new UnauthorizedException(`Invalid Google token: ${JSON.stringify(data)}`);
     }
 
-    const data: any = await res.json();
     const email = data?.email;
     const emailVerified = data?.email_verified;
 
