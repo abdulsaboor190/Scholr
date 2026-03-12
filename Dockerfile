@@ -26,4 +26,4 @@ RUN test -f /app/dist/main.js || \
 EXPOSE 3000
 
 # Use full path to avoid PATH issues in non-login shell
-CMD ["/bin/sh", "-c", "/app/node_modules/.bin/prisma migrate deploy && node /app/dist/main.js"]
+CMD ["/bin/sh", "-c", "/app/node_modules/.bin/prisma db push --accept-data-loss && node /app/dist/main.js"]
