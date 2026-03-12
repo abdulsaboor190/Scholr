@@ -1,49 +1,29 @@
-# ─── Stage 1: Builder ─────────────────────────────────────────────────────────
-FROM node:20-slim AS builder
+FROM node:20-slim
 
 WORKDIR /app
 
-# Install OpenSSL (required by Prisma)
+# Install system deps required by Prisma
 RUN apt-get update -y && \
     apt-get install -y openssl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Copy package files
-COPY package*.json ./
-COPY prisma ./prisma/
-
-# Install ALL dependencies (devDeps needed for nest build)
-RUN npm ci
-
-# Copy all source code
+# Copy everything in one shot
 COPY . .
 
-# Build TypeScript → dist/
-RUN npm run build
-
-# Verify dist was created — build fails here if nest build didn't produce output
-RUN ls -la /app/dist && echo "✅ dist/ OK"
-
-# ─── Stage 2: Runtime ─────────────────────────────────────────────────────────
-FROM node:20-slim AS runtime
-
-WORKDIR /app
-
-RUN apt-get update -y && \
-    apt-get install -y openssl ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
-# Copy package files and prisma schema
-COPY package*.json ./
-COPY prisma ./prisma/
-
-# Install production deps (prisma CLI stays — it's a devDep but needed for migrations at runtime)
-# So we install ALL deps then prune non-essential ones, keeping prisma
+# Install all dependencies (dev included — needed for nest build & prisma CLI)
 RUN npm ci
 
-# ✅ Copy compiled output from builder stage
-COPY --from=builder /app/dist ./dist
+# Compile TypeScript → /app/dist/
+RUN npm run build
+
+# Hard-fail the build if dist/main.js doesn't exist
+RUN test -f /app/dist/main.js || \
+    (echo "FATAL: /app/dist/main.js not found after build! Build output:" && \
+     ls -la /app && \
+     ls -la /app/dist 2>/dev/null || echo "dist/ does not exist" && \
+     exit 1)
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main.js"]
+# Use full path to avoid PATH issues in non-login shell
+CMD ["/bin/sh", "-c", "/app/node_modules/.bin/prisma migrate deploy && node /app/dist/main.js"]

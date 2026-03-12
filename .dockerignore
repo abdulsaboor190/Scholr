@@ -1,23 +1,14 @@
-# Dependencies (reinstalled inside Docker)
+# Don't send these to Docker — they get regenerated inside
 node_modules
-
-# Build output (compiled fresh inside Docker)
 dist
-
-# Git
 .git
-.gitignore
 
-# Local env files
+# Local env (Railway provides these via dashboard variables)
 .env
 .env.*
 !.env.example
 
-# Nixpacks (not needed when using Dockerfile)
-nixpacks.toml
-.nixpacks
-
-# Misc
-*.md
+# Editor/OS files
 .DS_Store
+*.md
 coverage
