@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   ForbiddenException,
+  InternalServerErrorException,
   Inject,
   Logger,
 } from '@nestjs/common';
@@ -81,31 +82,36 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    const user = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
 
-    if (!user || !user.password) {
-      throw new UnauthorizedException('Invalid credentials');
+      if (!user || !user.password) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+      if (!isPasswordValid) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+
+      const tokens = await this.generateTokens(user.id, user.email);
+      await this.storeRefreshToken(user.id, tokens.refreshToken);
+
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        ...tokens,
+      };
+    } catch (e: any) {
+      if (e instanceof UnauthorizedException) throw e;
+      throw new InternalServerErrorException(`DEBUG ERROR LOGIN: ${e.message} \n Stack: ${e.stack}`);
     }
-
-    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
-    }
-
-    const tokens = await this.generateTokens(user.id, user.email);
-    await this.storeRefreshToken(user.id, tokens.refreshToken);
-
-    return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      ...tokens,
-    };
   }
 
   async adminLogin(dto: LoginDto) {
