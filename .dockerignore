@@ -1,0 +1,23 @@
+# Dependencies (reinstalled inside Docker)
+node_modules
+
+# Build output (compiled fresh inside Docker)
+dist
+
+# Git
+.git
+.gitignore
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Nixpacks (not needed when using Dockerfile)
+nixpacks.toml
+.nixpacks
+
+# Misc
+*.md
+.DS_Store
+coverage
