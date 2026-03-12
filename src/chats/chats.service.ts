@@ -4,15 +4,10 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { ChatGateway } from './chat.gateway';
-import { Inject, forwardRef } from '@nestjs/common';
 
 @Injectable()
 export class ChatsService {
-  constructor(
-    private prisma: PrismaService,
-    @Inject(forwardRef(() => ChatGateway)) private chatGateway: ChatGateway,
-  ) { }
+  constructor(private prisma: PrismaService) { }
 
   async listUserChats(userId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
@@ -222,17 +217,6 @@ export class ChatsService {
         lastMessage: content.trim(),
       },
     });
-
-    const payload = {
-      messageId: message.id,
-      chatId,
-      senderId: userId,
-      content: message.content,
-      createdAt: message.createdAt,
-    };
-
-    // Broadcast the message via WebSocket so connected clients receive it instantly
-    this.chatGateway.server.to(`chat:${chatId}`).emit('new_message', payload);
 
     return message;
   }

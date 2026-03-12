@@ -54,6 +54,7 @@ export declare class AdminService {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         }[];
         reviewsReceived: ({
@@ -113,6 +114,7 @@ export declare class AdminService {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         })[];
         total: number;

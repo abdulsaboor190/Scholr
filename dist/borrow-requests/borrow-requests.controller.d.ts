@@ -20,6 +20,7 @@ export declare class BorrowRequestsController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
         requester: {
@@ -49,6 +50,7 @@ export declare class BorrowRequestsController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
         requester: {
@@ -76,6 +78,7 @@ export declare class BorrowRequestsController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
         requester: {
@@ -104,6 +107,7 @@ export declare class BorrowRequestsController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
         requester: {
@@ -138,6 +142,7 @@ export declare class BorrowRequestsController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
         requester: {
@@ -172,6 +177,7 @@ export declare class BorrowRequestsController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
         requester: {

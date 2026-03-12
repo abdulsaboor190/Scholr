@@ -21,6 +21,7 @@ export declare class BooksController {
         imageUrl: string | null;
         status: import(".prisma/client").$Enums.BookStatus;
         ownerId: string;
+        imageUrls: string[];
         isHidden: boolean;
     }>;
     findAll(filters: BookFilterDto): Promise<({
@@ -39,6 +40,7 @@ export declare class BooksController {
         imageUrl: string | null;
         status: import(".prisma/client").$Enums.BookStatus;
         ownerId: string;
+        imageUrls: string[];
         isHidden: boolean;
     })[]>;
     findOne(id: string): Promise<{
@@ -72,6 +74,7 @@ export declare class BooksController {
         imageUrl: string | null;
         status: import(".prisma/client").$Enums.BookStatus;
         ownerId: string;
+        imageUrls: string[];
         isHidden: boolean;
     }>;
     update(id: string, userId: string, dto: UpdateBookDto): Promise<{
@@ -90,6 +93,7 @@ export declare class BooksController {
         imageUrl: string | null;
         status: import(".prisma/client").$Enums.BookStatus;
         ownerId: string;
+        imageUrls: string[];
         isHidden: boolean;
     }>;
     remove(id: string, userId: string): Promise<{
@@ -111,6 +115,7 @@ export declare class BooksController {
         imageUrl: string | null;
         status: import(".prisma/client").$Enums.BookStatus;
         ownerId: string;
+        imageUrls: string[];
         isHidden: boolean;
     }>;
 }

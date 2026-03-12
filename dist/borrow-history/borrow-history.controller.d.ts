@@ -19,6 +19,7 @@ export declare class BorrowHistoryController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
     } & {
@@ -42,6 +43,7 @@ export declare class BorrowHistoryController {
             imageUrl: string | null;
             status: import(".prisma/client").$Enums.BookStatus;
             ownerId: string;
+            imageUrls: string[];
             isHidden: boolean;
         };
         requester: {

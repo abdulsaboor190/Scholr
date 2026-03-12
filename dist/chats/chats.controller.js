@@ -30,6 +30,9 @@ let ChatsController = class ChatsController {
     getMessages(chatId, userId, page = '1', limit = '30') {
         return this.chatsService.getMessages(chatId, userId, Number(page), Number(limit));
     }
+    sendMessage(chatId, userId, content) {
+        return this.chatsService.sendMessage(chatId, userId, content);
+    }
 };
 exports.ChatsController = ChatsController;
 __decorate([
@@ -59,6 +62,15 @@ __decorate([
     __metadata("design:paramtypes", [String, String, Object, Object]),
     __metadata("design:returntype", void 0)
 ], ChatsController.prototype, "getMessages", null);
+__decorate([
+    (0, common_1.Post)(':id/messages'),
+    __param(0, (0, common_1.Param)('id', common_1.ParseUUIDPipe)),
+    __param(1, (0, decorators_1.CurrentUser)('id')),
+    __param(2, (0, common_1.Body)('content')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:returntype", void 0)
+], ChatsController.prototype, "sendMessage", null);
 exports.ChatsController = ChatsController = __decorate([
     (0, common_1.Controller)('chats'),
     __metadata("design:paramtypes", [chats_service_1.ChatsService])

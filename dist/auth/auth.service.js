@@ -76,55 +76,67 @@ let AuthService = AuthService_1 = class AuthService {
         }
     }
     async register(dto) {
-        this.validateEmailDomain(dto.email);
-        const existingUser = await this.prisma.user.findUnique({
-            where: { email: dto.email },
-        });
-        if (existingUser) {
-            throw new common_1.ConflictException('User with this email already exists');
+        try {
+            this.validateEmailDomain(dto.email);
+            const existingUser = await this.prisma.user.findUnique({
+                where: { email: dto.email },
+            });
+            if (existingUser) {
+                throw new common_1.ConflictException('User with this email already exists');
+            }
+            const hashedPassword = await bcrypt.hash(dto.password, 12);
+            const user = await this.prisma.user.create({
+                data: {
+                    name: dto.name,
+                    email: dto.email,
+                    password: hashedPassword,
+                },
+            });
+            const tokens = await this.generateTokens(user.id, user.email);
+            await this.storeRefreshToken(user.id, tokens.refreshToken);
+            return {
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                },
+                ...tokens,
+            };
         }
-        const hashedPassword = await bcrypt.hash(dto.password, 12);
-        const user = await this.prisma.user.create({
-            data: {
-                name: dto.name,
-                email: dto.email,
-                password: hashedPassword,
-            },
-        });
-        const tokens = await this.generateTokens(user.id, user.email);
-        await this.storeRefreshToken(user.id, tokens.refreshToken);
-        return {
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
-            ...tokens,
-        };
+        catch (e) {
+            throw new common_1.ConflictException(`DEBUG ERROR: ${e.message} \n Stack: ${e.stack}`);
+        }
     }
     async login(dto) {
-        const user = await this.prisma.user.findUnique({
-            where: { email: dto.email },
-        });
-        if (!user || !user.password) {
-            throw new common_1.UnauthorizedException('Invalid credentials');
+        try {
+            const user = await this.prisma.user.findUnique({
+                where: { email: dto.email },
+            });
+            if (!user || !user.password) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
+            }
+            const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+            if (!isPasswordValid) {
+                throw new common_1.UnauthorizedException('Invalid credentials');
+            }
+            const tokens = await this.generateTokens(user.id, user.email);
+            await this.storeRefreshToken(user.id, tokens.refreshToken);
+            return {
+                user: {
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                },
+                ...tokens,
+            };
         }
-        const isPasswordValid = await bcrypt.compare(dto.password, user.password);
-        if (!isPasswordValid) {
-            throw new common_1.UnauthorizedException('Invalid credentials');
+        catch (e) {
+            if (e instanceof common_1.UnauthorizedException)
+                throw e;
+            throw new common_1.InternalServerErrorException(`DEBUG ERROR LOGIN: ${e.message} \n Stack: ${e.stack}`);
         }
-        const tokens = await this.generateTokens(user.id, user.email);
-        await this.storeRefreshToken(user.id, tokens.refreshToken);
-        return {
-            user: {
-                id: user.id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-            },
-            ...tokens,
-        };
     }
     async adminLogin(dto) {
         const user = await this.prisma.user.findUnique({
@@ -228,10 +240,10 @@ let AuthService = AuthService_1 = class AuthService {
     }
     async googleMobileLogin(idToken) {
         const res = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
-        if (!res.ok) {
-            throw new common_1.UnauthorizedException('Invalid Google token');
-        }
         const data = await res.json();
+        if (!res.ok) {
+            throw new common_1.UnauthorizedException(`Invalid Google token: ${JSON.stringify(data)}`);
+        }
         const email = data?.email;
         const emailVerified = data?.email_verified;
         if (!email || (emailVerified !== true && emailVerified !== 'true')) {

@@ -97,6 +97,7 @@ let ChatsService = class ChatsService {
             throw new common_1.ForbiddenException('Not a participant in this chat');
         }
         const skip = (page - 1) * limit;
+        const total = await this.prisma.message.count({ where: { chatId } });
         const messages = await this.prisma.message.findMany({
             where: { chatId },
             orderBy: { createdAt: 'desc' },
@@ -127,7 +128,8 @@ let ChatsService = class ChatsService {
                         avatarUrl: chat.user1.avatarUrl,
                     },
             },
-            messages,
+            items: messages,
+            total,
             page,
             limit,
         };
@@ -174,6 +176,31 @@ let ChatsService = class ChatsService {
                     avatarUrl: chat.user1.avatarUrl,
                 },
         };
+    }
+    async sendMessage(chatId, userId, content) {
+        if (!content || !content.trim()) {
+            throw new common_1.ForbiddenException('Message content required');
+        }
+        const chat = await this.prisma.chat.findUnique({
+            where: { id: chatId },
+        });
+        if (!chat || (chat.user1Id !== userId && chat.user2Id !== userId)) {
+            throw new common_1.ForbiddenException('Not a participant in this chat');
+        }
+        const message = await this.prisma.message.create({
+            data: {
+                chatId,
+                senderId: userId,
+                content: content.trim(),
+            },
+        });
+        await this.prisma.chat.update({
+            where: { id: chatId },
+            data: {
+                lastMessage: content.trim(),
+            },
+        });
+        return message;
     }
 };
 exports.ChatsService = ChatsService;

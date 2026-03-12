@@ -117,9 +117,15 @@ let BooksService = class BooksService {
         if (book.ownerId !== userId) {
             throw new common_1.ForbiddenException('You can only update your own books');
         }
+        const updateData = {
+            imageUrls: { push: imageUrl },
+        };
+        if (!book.imageUrl) {
+            updateData.imageUrl = imageUrl;
+        }
         return this.prisma.book.update({
             where: { id },
-            data: { imageUrl },
+            data: updateData,
             include: {
                 owner: {
                     select: { id: true, name: true, email: true },

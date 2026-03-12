@@ -43,7 +43,7 @@ export declare class ChatsService {
                 avatarUrl: string | null;
             };
         };
-        messages: {
+        items: {
             id: string;
             createdAt: Date;
             isHidden: boolean;
@@ -52,6 +52,7 @@ export declare class ChatsService {
             content: string;
             readAt: Date | null;
         }[];
+        total: number;
         page: number;
         limit: number;
     }>;
@@ -73,5 +74,14 @@ export declare class ChatsService {
             name: string;
             avatarUrl: string | null;
         };
+    }>;
+    sendMessage(chatId: string, userId: string, content: string): Promise<{
+        id: string;
+        createdAt: Date;
+        isHidden: boolean;
+        chatId: string;
+        senderId: string;
+        content: string;
+        readAt: Date | null;
     }>;
 }
