@@ -38,6 +38,22 @@ export declare class ReviewsService {
         page: number;
         limit: number;
     }>;
+    findByBook(bookId: string): Promise<({
+        reviewer: {
+            name: string;
+            id: string;
+            avatarUrl: string | null;
+        };
+    } & {
+        id: string;
+        createdAt: Date;
+        transactionId: string;
+        reviewerId: string;
+        revieweeId: string;
+        bookId: string;
+        rating: number;
+        comment: string | null;
+    })[]>;
     getPendingForUser(userId: string): Promise<{
         id: string;
         transactionId: string;

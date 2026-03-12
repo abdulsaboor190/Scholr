@@ -31,6 +31,9 @@ let ReviewsController = class ReviewsController {
     findByUser(userId, page, limit) {
         return this.reviewsService.findByUser(userId, page ? parseInt(page, 10) : 1, limit ? parseInt(limit, 10) : 20);
     }
+    findByBook(bookId) {
+        return this.reviewsService.findByBook(bookId);
+    }
 };
 exports.ReviewsController = ReviewsController;
 __decorate([
@@ -57,6 +60,13 @@ __decorate([
     __metadata("design:paramtypes", [String, String, String]),
     __metadata("design:returntype", void 0)
 ], ReviewsController.prototype, "findByUser", null);
+__decorate([
+    (0, common_1.Get)('book/:bookId'),
+    __param(0, (0, common_1.Param)('bookId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], ReviewsController.prototype, "findByBook", null);
 exports.ReviewsController = ReviewsController = __decorate([
     (0, common_1.Controller)('reviews'),
     __metadata("design:paramtypes", [reviews_service_1.ReviewsService])

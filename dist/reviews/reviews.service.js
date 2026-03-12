@@ -78,6 +78,15 @@ let ReviewsService = class ReviewsService {
         ]);
         return { items, total, page, limit };
     }
+    async findByBook(bookId) {
+        return this.prisma.review.findMany({
+            where: { bookId },
+            include: {
+                reviewer: { select: { id: true, name: true, avatarUrl: true } },
+            },
+            orderBy: { createdAt: 'desc' },
+        });
+    }
     async getPendingForUser(userId) {
         const transactions = await this.prisma.borrowRequest.findMany({
             where: {

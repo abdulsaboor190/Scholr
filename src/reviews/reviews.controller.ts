@@ -39,4 +39,9 @@ export class ReviewsController {
       limit ? parseInt(limit, 10) : 20,
     );
   }
+
+  @Get('book/:bookId')
+  findByBook(@Param('bookId') bookId: string) {
+    return this.reviewsService.findByBook(bookId);
+  }
 }

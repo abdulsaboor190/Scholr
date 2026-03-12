@@ -21,6 +21,7 @@ let BooksService = class BooksService {
         return this.prisma.book.create({
             data: {
                 ...dto,
+                imageUrls: [],
                 ownerId: userId,
             },
             include: {
