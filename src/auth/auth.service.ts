@@ -42,38 +42,42 @@ export class AuthService {
   }
 
   async register(dto: RegisterDto) {
-    this.validateEmailDomain(dto.email);
+    try {
+      this.validateEmailDomain(dto.email);
 
-    const existingUser = await this.prisma.user.findUnique({
-      where: { email: dto.email },
-    });
+      const existingUser = await this.prisma.user.findUnique({
+        where: { email: dto.email },
+      });
 
-    if (existingUser) {
-      throw new ConflictException('User with this email already exists');
+      if (existingUser) {
+        throw new ConflictException('User with this email already exists');
+      }
+
+      const hashedPassword = await bcrypt.hash(dto.password, 12);
+
+      const user = await this.prisma.user.create({
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: hashedPassword,
+        },
+      });
+
+      const tokens = await this.generateTokens(user.id, user.email);
+      await this.storeRefreshToken(user.id, tokens.refreshToken);
+
+      return {
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        ...tokens,
+      };
+    } catch (e: any) {
+      throw new ConflictException(`DEBUG ERROR: ${e.message} \n Stack: ${e.stack}`);
     }
-
-    const hashedPassword = await bcrypt.hash(dto.password, 12);
-
-    const user = await this.prisma.user.create({
-      data: {
-        name: dto.name,
-        email: dto.email,
-        password: hashedPassword,
-      },
-    });
-
-    const tokens = await this.generateTokens(user.id, user.email);
-    await this.storeRefreshToken(user.id, tokens.refreshToken);
-
-    return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      ...tokens,
-    };
   }
 
   async login(dto: LoginDto) {
