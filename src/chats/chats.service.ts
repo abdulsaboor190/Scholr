@@ -4,10 +4,15 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { ChatGateway } from './chat.gateway';
+import { Inject, forwardRef } from '@nestjs/common';
 
 @Injectable()
 export class ChatsService {
-  constructor(private prisma: PrismaService) { }
+  constructor(
+    private prisma: PrismaService,
+    @Inject(forwardRef(() => ChatGateway)) private chatGateway: ChatGateway,
+  ) { }
 
   async listUserChats(userId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
@@ -102,6 +107,7 @@ export class ChatsService {
 
     const skip = (page - 1) * limit;
 
+    const total = await this.prisma.message.count({ where: { chatId } });
     const messages = await this.prisma.message.findMany({
       where: { chatId },
       orderBy: { createdAt: 'desc' },
@@ -134,7 +140,8 @@ export class ChatsService {
               avatarUrl: chat.user1.avatarUrl,
             },
       },
-      messages,
+      items: messages,
+      total,
       page,
       limit,
     };
@@ -186,5 +193,47 @@ export class ChatsService {
             avatarUrl: chat.user1.avatarUrl,
           },
     };
+  }
+
+  async sendMessage(chatId: string, userId: string, content: string) {
+    if (!content || !content.trim()) {
+      throw new ForbiddenException('Message content required');
+    }
+
+    const chat = await this.prisma.chat.findUnique({
+      where: { id: chatId },
+    });
+
+    if (!chat || (chat.user1Id !== userId && chat.user2Id !== userId)) {
+      throw new ForbiddenException('Not a participant in this chat');
+    }
+
+    const message = await this.prisma.message.create({
+      data: {
+        chatId,
+        senderId: userId,
+        content: content.trim(),
+      },
+    });
+
+    await this.prisma.chat.update({
+      where: { id: chatId },
+      data: {
+        lastMessage: content.trim(),
+      },
+    });
+
+    const payload = {
+      messageId: message.id,
+      chatId,
+      senderId: userId,
+      content: message.content,
+      createdAt: message.createdAt,
+    };
+
+    // Broadcast the message via WebSocket so connected clients receive it instantly
+    this.chatGateway.server.to(`chat:${chatId}`).emit('new_message', payload);
+
+    return message;
   }
 }

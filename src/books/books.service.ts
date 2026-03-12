@@ -133,9 +133,17 @@ export class BooksService {
       throw new ForbiddenException('You can only update your own books');
     }
 
+    // Set imageUrl to the first image uploaded (primary). Append every image to imageUrls[].
+    const updateData: any = {
+      imageUrls: { push: imageUrl },
+    };
+    if (!book.imageUrl) {
+      updateData.imageUrl = imageUrl;
+    }
+
     return this.prisma.book.update({
       where: { id },
-      data: { imageUrl },
+      data: updateData,
       include: {
         owner: {
           select: { id: true, name: true, email: true },

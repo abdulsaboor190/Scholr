@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Query } from '@nestjs/common';
 import { ChatsService } from './chats.service';
 import { CurrentUser } from '../common/decorators';
 
@@ -36,5 +36,14 @@ export class ChatsController {
       Number(page),
       Number(limit),
     );
+  }
+
+  @Post(':id/messages')
+  sendMessage(
+    @Param('id', ParseUUIDPipe) chatId: string,
+    @CurrentUser('id') userId: string,
+    @Body('content') content: string,
+  ) {
+    return this.chatsService.sendMessage(chatId, userId, content);
   }
 }
