@@ -252,10 +252,21 @@ export class AuthService {
       throw new UnauthorizedException('Google email not verified');
     }
 
+    this.logger.log(`Google Mobile Login attempt: email=${email}`);
+
+    // Validate domain — throw a clear message if the domain is not allowed
+    try {
+      this.validateEmailDomain(email);
+    } catch (e: any) {
+      throw new ForbiddenException(
+        `Your Google account (${email}) is not a university email. Only ${this.allowedDomains.join(', ')} accounts are permitted.`
+      );
+    }
+
     const googleUser = {
       googleId: data?.sub,
       email,
-      name: data?.name || '',
+      name: data?.name || email.split('@')[0],
       avatarUrl: data?.picture,
     };
 

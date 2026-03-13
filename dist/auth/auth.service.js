@@ -249,10 +249,17 @@ let AuthService = AuthService_1 = class AuthService {
         if (!email || (emailVerified !== true && emailVerified !== 'true')) {
             throw new common_1.UnauthorizedException('Google email not verified');
         }
+        this.logger.log(`Google Mobile Login attempt: email=${email}`);
+        try {
+            this.validateEmailDomain(email);
+        }
+        catch (e) {
+            throw new common_1.ForbiddenException(`Your Google account (${email}) is not a university email. Only ${this.allowedDomains.join(', ')} accounts are permitted.`);
+        }
         const googleUser = {
             googleId: data?.sub,
             email,
-            name: data?.name || '',
+            name: data?.name || email.split('@')[0],
             avatarUrl: data?.picture,
         };
         return this.googleLogin(googleUser);
